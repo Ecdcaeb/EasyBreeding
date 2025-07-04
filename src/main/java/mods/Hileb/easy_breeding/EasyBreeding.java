@@ -116,7 +116,7 @@ public class EasyBreeding {
             return false;
         }
 
-        public  static void eatOne(EntityItem enti) {
+        public static void eatOne(EntityItem enti) {
             ItemStack stack = enti.getItem();
             stack.setCount(stack.getCount() - 1);
             if (stack.getCount() == 0)
