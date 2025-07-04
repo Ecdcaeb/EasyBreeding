@@ -3,7 +3,10 @@ package mods.Hileb.easy_breeding;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Config;
@@ -63,7 +66,7 @@ public class EasyBreeding {
 
         @Override
         public boolean shouldExecute() {
-            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && searchDistance > 0;
+            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && EasyBreeding.EasyBreedingConfig.getDistance(this.animal) > 0;
         }
 
         @Override
@@ -71,7 +74,7 @@ public class EasyBreeding {
         {
             EntityItem entityItem = whatFoodIsNear();
             if (entityItem != null && this.animal.isBreedingItem(entityItem.getItem())) {
-                execute(this.animal, closeFood);
+                execute(this.animal, entityItem);
             }
         }
 
@@ -99,7 +102,7 @@ public class EasyBreeding {
             return world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(animal.posX - searchDistance, animal.posY - searchDistance, animal.posZ - searchDistance,
                     animal.posX + searchDistance, animal.posY + searchDistance, animal.posZ + searchDistance));
         }
-        
+
         public static boolean execute(EntityAnimal enta, EntityItem enti) {
             if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25F)) {
                 if (enta.getDistance(enti) < 1.0F) {
@@ -108,6 +111,17 @@ public class EasyBreeding {
                         enta.ageUp(-enta.getGrowingAge()/200, true);
                         return true;
                     } else {
+                        if (enti.getThrower() != null) {
+                            MinecraftServer minecraftServer = enta.world.getMinecraftServer();
+                            if (minecraftServer != null) {
+                                PlayerList playerList = minecraftServer.getPlayerList();
+                                if (playerList != null) {
+                                    EntityPlayer player = playerList.getPlayerByUsername(enti.getThrower());
+                                    enta.setInLove(player);
+                                    return true;
+                                }
+                            }
+                        } 
                         enta.setInLove(null);
                         return true;
                     }
@@ -116,12 +130,11 @@ public class EasyBreeding {
             return false;
         }
 
-        public static void eatOne(EntityItem enti) {
+        public  static void eatOne(EntityItem enti) {
             ItemStack stack = enti.getItem();
-            stack.setCount(stack.getCount() - 1);
+            stack.shrink(1);
             if (stack.getCount() == 0)
                 enti.setDead();
         }
     }
-
 }
