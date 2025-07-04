@@ -67,7 +67,7 @@ public class EasyBreeding {
 
         @Override
         public boolean shouldExecute() {
-            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && EasyBreeding.EasyBreedingConfig.getDistance(this.animal) > 0;
+            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && searchDistance > 0;
         }
 
         @Override
@@ -106,7 +106,8 @@ public class EasyBreeding {
 
         public static boolean execute(EntityAnimal enta, EntityItem enti) {
             if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25F)) {
-                if (enta.getDistance(enti) < 1.0F) {
+                enta.getLookHelper().setLookPosition(enti.posX, enti.posY, enti.posZ, enta.getHorizontalFaceSpeed(), enta.getVerticalFaceSpeed());
+                if ((!enta.isInLove()) && enta.getDistance(enti) < 1.0F) {
                     eatOne(enti);
                     if (enta.isChild()) {
                         enta.ageUp(-enta.getGrowingAge()/200, true);
