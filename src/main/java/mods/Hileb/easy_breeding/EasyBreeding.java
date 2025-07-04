@@ -10,6 +10,7 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +42,7 @@ public class EasyBreeding {
     }
 
     @SubscribeEvent
-    public static void onEntityInit(net.minecraftforge.event.entity.EntityEvent.EntityConstructing evt) {
+    public static void onEntityInit(EntityJoinWorldEvent evt) {
         if (!evt.getEntity().world.isRemote && evt.getEntity() instanceof EntityAnimal) {
             EntityAnimal entityAnimal = (EntityAnimal) evt.getEntity();
             double searchDistance = EasyBreedingConfig.getDistance(entityAnimal);
@@ -121,7 +122,7 @@ public class EasyBreeding {
                                     return true;
                                 }
                             }
-                        } 
+                        }
                         enta.setInLove(null);
                         return true;
                     }
