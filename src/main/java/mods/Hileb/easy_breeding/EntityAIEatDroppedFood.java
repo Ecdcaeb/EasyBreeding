@@ -23,8 +23,22 @@ public class EntityAIEatDroppedFood extends EntityAIBase {
         this.searchDistance = searchDistance;
     }
 
-    public EntityItem whatFoodIsNear() {
-        List <EntityItem> items = getItems();
+    @Override
+    public boolean shouldExecute() {
+        return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && EasyBreeding.EasyBreedingConfig.getDistance(this.animal) > 0;
+    }
+
+    @Override
+    public void updateTask()
+    {
+        EntityItem entityItem = whatFoodIsNear();
+        if (entityItem != null && this.animal.isBreedingItem(entityItem.getEntityItem())) {
+            execute(this.animal, closeFood);
+        }
+    }
+
+    protected EntityItem whatFoodIsNear() {
+        List<EntityItem> items = getItems();
         //Turns the list into single Item Entity's
         for (EntityItem item: items) {
             EntityItem stack = item;
@@ -35,8 +49,9 @@ public class EntityAIEatDroppedFood extends EntityAIBase {
         }
         return null;
     }
+
     // Gets all item entity's within one block of the animals pos, can be changed adds the to a list
-    List<EntityItem> getItems() {
+    protected List<EntityItem> getItems() {
         return world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(animal.posX - searchDistance, animal.posY - searchDistance, animal.posZ - searchDistance,
             animal.posX + searchDistance, animal.posY + searchDistance, animal.posZ + searchDistance));
     }
@@ -45,34 +60,23 @@ public class EntityAIEatDroppedFood extends EntityAIBase {
         "rawtypes",
         "unchecked"
     })
-    public boolean shouldExecute() {
-        EntityItem closeFood = whatFoodIsNear();
-
-        if ((closeFood != null)
-            //Don't know what this is???
-            //&& (this.animal.inLove <= 0) 
-            &&
-            (!this.animal.isChild()) && (this.animal.getGrowingAge() == 0) && (!this.animal.isInLove()) && (this.animal.isBreedingItem(closeFood.getEntityItem()))) {
-            execute(this.animal, closeFood);
+    public static boolean execute(EntityAnimal enta, EntityItem enti) {
+        if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25 F)) {
+            if (enta.getDistanceToEntity(enti) < 1.0 F) {
+                eatOne(enti);
+                if (enta.isChild()) {
+                    enta.ageUp((int)(-enta.getGrowingAge()/200), true);
+                    return true;
+                } else {
+                    enta.setInLove(null);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-    @SuppressWarnings({
-        "rawtypes",
-        "unchecked"
-    })
-    public boolean execute(EntityAnimal enta, EntityItem enti) {
-        if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25 F)) {
-            if (enta.getDistanceToEntity(enti) < 1.0 F) {
-                eatOne(enti);
-                enta.setInLove(null);
-            }
-        }
-        return true;
-    }
-
-    public void eatOne(EntityItem enti) {
+    public  static void eatOne(EntityItem enti) {
         ItemStack stack = enti.getEntityItem();
         stack.setCount(stack.getCount() - 1);
         if (stack.getCount() == 0)
