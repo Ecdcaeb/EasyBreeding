@@ -63,7 +63,7 @@ public class EasyBreeding {
 
         @Override
         public boolean shouldExecute() {
-            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && EasyBreeding.EasyBreedingConfig.getDistance(this.animal) > 0;
+            return (!this.animal.isInLove()) && (EasyBreeding.EasyBreedingConfig.feedChild || !this.animal.isChild()) && searchDistance > 0;
         }
 
         @Override
