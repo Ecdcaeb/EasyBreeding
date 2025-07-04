@@ -11,7 +11,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class EntityAIEatDroppedFood extends EntityAIBase {
-    protected EntityAnimal;
+    protected EntityAnimal animal;
     protected Random rand;
     protected World world;
     protected double searchDistance;
@@ -61,8 +61,8 @@ public class EntityAIEatDroppedFood extends EntityAIBase {
         "unchecked"
     })
     public static boolean execute(EntityAnimal enta, EntityItem enti) {
-        if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25 F)) {
-            if (enta.getDistanceToEntity(enti) < 1.0 F) {
+        if (enta.getNavigator().tryMoveToXYZ(enti.posX, enti.posY, enti.posZ, 1.25F)) {
+            if (enta.getDistanceToEntity(enti) < 1.0F) {
                 eatOne(enti);
                 if (enta.isChild()) {
                     enta.ageUp((int)(-enta.getGrowingAge()/200), true);
